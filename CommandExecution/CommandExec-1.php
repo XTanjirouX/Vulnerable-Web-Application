@@ -22,7 +22,17 @@
   <div style="background-color:#ecf2d0;padding:20px;border-radius:0px 0px 20px 20px" align="center">
     <?php
     if(isset($_GET["username"])){
-      echo shell_exec($_GET["username"]);
+   $username = escapeshellarg($_GET["username"]);
+      if (preg_match('/^[a-zA-Z0-9]+$/', $_GET["username"])) {
+        // Comando seguro (comando estático con argumento validado)
+        $output = shell_exec("echo $username");
+        echo htmlspecialchars($output);
+        } else {
+        echo "Nombre de usuario inválido.";
+    }
+} else {
+    echo "No se proporcionó un nombre de usuario.";
+}
       if($_GET["username"] == "Admin" && $_GET["password"] == "ufoundmypassword")
         echo "WELLDONE";
     }
