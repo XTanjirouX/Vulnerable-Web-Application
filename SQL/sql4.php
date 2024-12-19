@@ -38,25 +38,41 @@
 	    die("Connection failed: " . $conn->connect_error);
 	} 
 	//echo "Connected successfully";
-	if(isset($_POST["submit"])){
-		$number = $_POST['number'];
-		//I'm the best web developer.
-		//number is too dangerous. I have to do something.
-		if(strchr($number,"'")){
-			echo "What are you trying to do?<br>";
-			echo "Awesome hacking skillzz<br>";
-			echo "But you can't hack me anymore!";
-			exit;
-		}
+if (isset($_POST["submit"])) {
+    // Validar y sanitizar la entrada
+    if (isset($_POST['number']) && is_numeric($_POST['number'])) {
+        $number = intval($_POST['number']); // Convertir a entero para mayor seguridad
 
-		$query = "SELECT bookname,authorname FROM books WHERE number = $number"; 
-		$result = mysqli_query($conn,$query);
+        // Usar consultas preparadas para evitar inyección SQL
+        $stmt = $conn->prepare("SELECT bookname, authorname FROM books WHERE number = ?");
+        if (!$stmt) {
+            // Error en la preparación de la consulta
+            error_log("Error en la preparación de la consulta: " . $conn->error);
+            die("Ocurrió un error al procesar la solicitud.");
+        }
 
-		if (!$result) { //Check result
-		    $message  = 'Invalid query: ' . mysql_error() . "\n";
-		    $message .= 'Whole query: ' . $query;
-		    die($message);
-		}
+        // Enlazar parámetros y ejecutar
+        $stmt->bind_param("i", $number); // "i" para enteros
+        $stmt->execute();
+
+        // Obtener resultados
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            // Mostrar los resultados
+            while ($row = $result->fetch_assoc()) {
+                echo "Nombre del libro: " . htmlspecialchars($row["bookname"]) . "<br>";
+                echo "Nombre del autor: " . htmlspecialchars($row["authorname"]) . "<br>";
+            }
+        } else {
+            echo "No se encontraron resultados.";
+        }
+
+        // Cerrar el statement
+        $stmt->close();
+    } else {
+        echo "Número no válido. Por favor, introduzca un valor numérico.";
+    }
+}
 
 		while ($row = mysqli_fetch_assoc($result)) {
 			echo "<hr>";
