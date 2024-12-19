@@ -20,29 +20,48 @@
 	</div>
 
 <?php
-	$servername = "localhost";
-	$username = "root";
-	$password = "";
-	$db = "1ccb8097d0e9ce9f154608be60224c7c";
 
-	// Create connection
-	$conn = new mysqli($servername, $username, $password,$db);
+if ($conn->connect_error) {
+    die("Connection failed: " . htmlspecialchars($conn->connect_error));
+}
 
-	// Check connection
-	if ($conn->connect_error) {
-	    die("Connection failed: " . $conn->connect_error);
-	} 
-	//echo "Connected successfully";
-	if(isset($_POST["submit"])){
-		$number = $_POST['number'];
-		$query = "SELECT bookname,authorname FROM books WHERE number = $number"; //Int
-		$result = mysqli_query($conn,$query);
+// Comprobación al enviar el formulario
+if (isset($_POST["submit"])) {
+    // Validar entrada como un número entero
+    if (isset($_POST['number']) && is_numeric($_POST['number'])) {
+        $number = intval($_POST['number']); // Convertir a entero para mayor seguridad
 
-		if (!$result) { //Check result
-		    $message  = 'Invalid query: ' . mysql_error() . "\n";
-		    $message .= 'Whole query: ' . $query;
-		    die($message);
-		}
+        // Preparar la consulta con parámetros
+        $stmt = $conn->prepare("SELECT bookname, authorname FROM books WHERE number = ?");
+        if (!$stmt) {
+            // Error en la preparación
+            error_log("Error en la preparación de la consulta: " . $conn->error);
+            die("Error al procesar la solicitud.");
+        }
+
+        // Enlazar parámetros y ejecutar la consulta
+        $stmt->bind_param("i", $number); // "i" indica un parámetro entero
+        $stmt->execute();
+
+        // Obtener los resultados
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            // Procesar resultados
+            while ($row = $result->fetch_assoc()) {
+                echo "Book Name: " . htmlspecialchars($row["bookname"]) . "<br>";
+                echo "Author Name: " . htmlspecialchars($row["authorname"]) . "<br>";
+            }
+        } else {
+            echo "No se encontraron resultados.";
+        }
+
+        // Cerrar el statement
+        $stmt->close();
+    } else {
+        echo "Número no válido. Por favor, introduzca un valor numérico.";
+    }
+}
+
 
 		while ($row = mysqli_fetch_assoc($result)) {
 			echo "<hr>";
