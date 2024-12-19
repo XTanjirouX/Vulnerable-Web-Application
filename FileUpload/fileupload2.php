@@ -34,7 +34,7 @@ if(isset($_POST["submit"])) {
     
     if($uploadOk == 1){
         move_uploaded_file($_FILES["file"]["tmp_name"], $target_file);
-        echo "File uploaded /uploads/".$_FILES["file"]["name"];
+        echo "File uploaded /uploads/".htmlspecialchars($_FILES["file"]["name"]);
     }
 }
 ?>
