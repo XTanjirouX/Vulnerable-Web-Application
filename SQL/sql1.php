@@ -37,8 +37,31 @@
 	
 	if(isset($_POST["submit"])){
 		$firstname = $_POST["firstname"];
-		$sql = "SELECT lastname FROM users WHERE firstname='$firstname'";//String
-		$result = mysqli_query($conn,$sql);
+
+class AuthenticationHandler {
+
+    public mysqli $conn;
+
+    function authenticate() {
+        $user = $_POST['user'];
+        $pass = $_POST['pass'];
+        $authenticated = false;
+	    
+		$sql = "SELECT * FROM users WHERE user = :user AND pass = :pass"
+		$stmt = $this->conn->prepare($query);
+        $stmt->bind_param(":user", $user);
+        $stmt->bind_param(":pass", $pass);
+        $stmt->execute();
+
+        $stmt->store_result();
+
+        if ( $stmt->num_rows == 1) {
+          $authenticated = true;
+        }
+
+        return $authenticated;
+    }
+}
 		
 		if (mysqli_num_rows($result) > 0) {
         // output data of each row
