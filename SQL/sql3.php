@@ -23,7 +23,7 @@
 <?php
 	$servername = "localhost";
 	$username = "root";
-	$password = "";
+	$password = getenv('MYSQL_SECURE_PASSWORD');
 	$db = "1ccb8097d0e9ce9f154608be60224c7c";
 
 	// Create connection
