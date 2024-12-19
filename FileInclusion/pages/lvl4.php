@@ -20,19 +20,19 @@
       
       <?php     
         echo "</br></br>";
-
-        if (isset( $_GET[ 'file' ])) 
-        {
-          $secure4 = $_GET[ 'file' ];
-         
-            if ($secure4!="1.php" && $secure4!="2.php") 
+         $INCLUDE_ALLOW_LIST = [
+    "1.php",
+    "2.php"
+];
+      $secure4 = $_GET["filename"];
+         if ($secure4!="1.php" && $secure4!="2.php") 
             {
               $secure4=substr($secure4, 0,-4);
             }
             
-            if (isset($secure4)) 
-            {        
-              include($secure4);              
+           if (in_array($secure4, $INCLUDE_ALLOW_LIST)) {
+  include $secure4;
+}   
             }
         }              
       ?>
